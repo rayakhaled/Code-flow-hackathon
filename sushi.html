@@ -1,0 +1,759 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SUSHI CYBER LABS - ULTIMATE MAZE & VIDEO POPUP CHAOS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Comic+Neue:wght@700&display=swap');
+
+    :root {
+      --bg: #030305;
+      --panel: #0a0b10;
+      --accent: #ff0055;
+      --cyan: #00f0ff;
+      --text: #e0e0e0;
+      --danger: #ff0033;
+      --warning: #ffcc00;
+      --wasabi: #39ff14;
+      --neon-purple: #b000ff;
+      --pink: #ff00bb;
+      --yellow: #ffff00;
+    }
+
+    * { box-sizing: border-box; user-select: none; font-family: 'Comic Neue', cursive; }
+
+    body {
+      margin: 0; padding: 0;
+      background: repeating-linear-gradient(45deg, #160021 0 12px, #29002c 12px 24px);
+      color: var(--yellow);
+      overflow-x: hidden; min-height: 100vh; display: flex; justify-content: center; align-items: center;
+    }
+
+    .glitch-shake { animation: shake 0.08s cubic-bezier(.36,.07,.19,.97) both infinite; }
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-12px, 10px, 0) rotate(4deg); }
+      20%, 80% { transform: translate3d(14px, -12px, 0) rotate(-4deg); }
+      30%, 50%, 70% { transform: translate3d(-18px, 14px, 0); }
+      40%, 60% { transform: translate3d(18px, -10px, 0); }
+    }
+
+    @keyframes videoCartwheel {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(0.75); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+    .do-cartwheel { animation: videoCartwheel 5s linear 1 forwards !important; }
+
+    #sushi-header {
+      position: fixed; top: 15px; left: 20px; font-size: 1.2rem; font-weight: bold;
+      color: var(--yellow); letter-spacing: 2px; z-index: 9999; text-shadow: 3px 3px var(--danger);
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    #eye-container {
+      position: fixed; top: 15px; right: 20px; width: 85px; height: 85px; background: #111;
+      border: 3px solid var(--accent); border-radius: 50%; display: flex;
+      justify-content: center; align-items: center; z-index: 9999;
+    }
+    #pupil { width: 24px; height: 24px; background: var(--accent); border-radius: 50%; position: relative; }
+
+    .stage {
+      display: none; width: 95%; max-width: 900px; background: var(--panel);
+      border: 4px ridge var(--pink); padding: 25px; box-shadow: 0 0 40px var(--pink);
+      border-radius: 8px; position: relative;
+    }
+    .stage.active { display: flex; flex-direction: column; align-items: center; }
+
+    h1, h2 { font-family: 'Press Start 2P', monospace; color: var(--yellow); text-transform: uppercase; letter-spacing: 2px; margin-top: 0; text-align: center; font-size: clamp(14px, 3vw, 20px); text-shadow: 3px 3px var(--danger); }
+    p { color: #fff; text-align: center; font-size: 0.95rem; font-weight: bold; }
+
+    .input-box { width: 100%; margin: 15px 0; }
+    input[type="text"] {
+      width: 100%; padding: 12px; background: #000; border: 3px solid var(--cyan);
+      color: var(--wasabi); font-size: 1.1rem; text-align: center; outline: none; font-weight: bold;
+    }
+
+    .btn-container { display: flex; width: 100%; height: 90px; position: relative; margin-top: 10px; }
+    .cursed-btn {
+      padding: 10px 20px; background: var(--yellow); color: #000; border: 3px outset #fff;
+      font-weight: bold; cursor: pointer; position: absolute; transition: all 0.1s ease; outline: none; font-size: 16px;
+    }
+
+    .cursed-btn:focus, .cursed-btn.tab-focused {
+      border: 3px dashed var(--wasabi) !important;
+      box-shadow: 0 0 25px var(--wasabi) !important;
+      background: #000 !important; color: var(--wasabi) !important;
+    }
+
+    .custom-modal {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.92);
+      z-index: 15000; display: none; justify-content: center; align-items: center;
+    }
+    .joke-box {
+      background: #0c0d14; border: 3px solid var(--warning); padding: 30px; max-width: 550px;
+      text-align: center; box-shadow: 0 0 30px var(--warning); position: relative; min-height: 200px;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+    }
+
+    #maze-canvas { background: #000; border: 3px solid var(--danger); cursor: crosshair; }
+
+    #vault-screen { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .pin-display {
+      width: 250px; height: 50px; background: #000; border: 2px solid var(--wasabi); color: var(--wasabi);
+      font-size: 2rem; font-weight: bold; letter-spacing: 12px; display: flex; justify-content: center; align-items: center;
+      box-shadow: 0 0 15px var(--wasabi);
+    }
+
+    .phone-keypad { display: grid; grid-template-columns: repeat(3, 65px); gap: 10px; }
+    .key-btn {
+      width: 65px; height: 65px; background: #0d120d; border: 2px solid var(--neon-purple); color: #fff;
+      font-size: 1.4rem; font-weight: bold; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center;
+      box-shadow: 0 0 10px var(--neon-purple); transition: all 0.05s ease;
+    }
+
+    #unlocked-player-view { display: none; width: 100%; flex-direction: column; align-items: center; position: relative; }
+
+    .gauge-container {
+      width: 100%; height: 28px; background: #000; border: 2px solid var(--cyan); margin-bottom: 10px; border-radius: 14px; overflow: visible; position: relative;
+    }
+    #gauge-bar { width: 0%; height: 100%; background: linear-gradient(90deg, red, yellow, lime); border-radius: 14px; transition: width 0.1s linear; }
+    #duck-progress-icon {
+      position: absolute; top: -10px; left: 0%; font-size: 28px; transform: translateX(-50%); transition: left 0.1s linear; z-index: 10; cursor: pointer;
+    }
+
+    .player-outer-box {
+      width: 100%; background: #000; border: 6px ridge var(--pink);
+      padding: 12px; box-shadow: 0 0 30px var(--pink), 0 0 60px var(--cyan); position: relative;
+    }
+
+    #video-viewport {
+      width: 100%; height: 350px; background: #000; position: relative; border: 3px solid var(--cyan);
+      overflow: hidden; display: flex; justify-content: center; align-items: center; transition: transform 0.3s ease;
+    }
+    
+    #real-video-stream { width: 100%; height: 100%; object-fit: cover; }
+
+    /* SCALE SHOCK 1: GIANT VOLUME BUTTON */
+    .giant-vol-btn {
+      width: 100%; height: 140px; background: linear-gradient(45deg, var(--accent), var(--yellow));
+      border: 5px outset #fff; color: #000; font-family: 'Press Start 2P', monospace;
+      font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;
+      display: flex; justify-content: center; align-items: center; text-shadow: 1px 1px #fff;
+    }
+
+    /* SCALE SHOCK 2: MICROSCOPIC SPEED BUTTON (5px) */
+    .micro-speed-btn {
+      position: absolute; top: 5px; right: 5px; width: 5px; height: 5px;
+      background: var(--wasabi); cursor: pointer; z-index: 100; border: none;
+    }
+
+    /* VIDEO PLAYER CURSED POPUP WINDOWS */
+    .video-player-popup {
+      position: absolute; width: 240px; background: var(--pink); border: 4px solid var(--yellow);
+      padding: 12px; z-index: 900; box-shadow: 0 0 20px var(--pink); text-align: center;
+    }
+
+    .controls-panel {
+      background: linear-gradient(90deg, #ff00aa, #3300ff, #00aaaa);
+      margin-top: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; position: relative;
+    }
+
+    .button-group { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; position: relative; }
+
+    .v-btn {
+      cursor: pointer; padding: 10px 14px; border: 3px outset #fff;
+      background: var(--yellow); color: #000; font-weight: bold; font-size: 15px;
+      transition: all 0.1s ease; text-transform: uppercase; outline: none; position: relative;
+    }
+
+    .info-bar {
+      display: flex; justify-content: space-between; background: #111; color: #fff;
+      padding: 8px 12px; font-size: 14px; border: 2px solid var(--cyan); margin-top: 8px;
+    }
+
+    #jumpscare-overlay {
+      position: fixed; top:0; left:0; width:100vw; height:100vh; background: #000; opacity: 0; pointer-events: none;
+      z-index: 20000; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    }
+    #scary-face-img {
+      width: 350px; height: 350px; background: radial-gradient(circle, #ff0033 0%, #000 75%);
+      border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 80px var(--danger);
+    }
+
+    #win-overlay {
+      position: fixed; top:0; left:0; width:100vw; height:100vh; background: #050508; z-index: 25000; display: none;
+      flex-direction: column; justify-content: center; align-items: center; border: 10px solid var(--wasabi); text-align: center; padding: 20px;
+    }
+
+    .slippery-pop-close {
+      position: absolute; top: 12px; right: 12px; background: var(--danger); color: #fff;
+      border: 2px solid #fff; width: 35px; height: 35px; font-weight: bold; cursor: pointer; border-radius: 50%;
+      display: flex; justify-content: center; align-items: center; transition: all 0.1s ease; box-shadow: 0 0 10px var(--danger);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="sushi-header">🍣 SUSHI CYBER LABS</div>
+  <div id="eye-container"><div id="pupil"></div></div>
+
+  <!-- JUMPSCARE -->
+  <div id="jumpscare-overlay">
+    <div id="scary-face-img">
+      <div style="width:50px; height:80px; background:#fff; border-radius:50%; margin:15px;"></div>
+      <div style="width:50px; height:80px; background:#fff; border-radius:50%; margin:15px;"></div>
+    </div>
+    <h1 id="jumpscare-text" style="color:var(--danger); font-size:3rem; margin-top:20px;">AHOY MATEY! KRAKEN ALERT DETECTED! ARRR!</h1>
+  </div>
+
+  <!-- STAGE 1 CURSED MULTI-POPUP HINT TRAP -->
+  <div id="stage1-popup" class="custom-modal">
+    <div class="joke-box" style="border-color:var(--warning);">
+      <button id="stage1-pop-close" class="slippery-pop-close">X</button>
+      <h3 id="stage1-pop-title" style="color:var(--warning); margin-top:0;">🏴‍☠️ CURSED PIRATE HINT #1 AHOY!</h3>
+      <p id="stage1-pop-text" style="font-size:1.1rem; color:#fff; margin:20px 0; max-width:440px;"></p>
+      <p id="pop-subtext" style="color:var(--danger); font-size:0.75rem; display:none;">(Hold SHIFT key while clicking X to close this window, matey! ARRR!)</p>
+    </div>
+  </div>
+
+  <!-- INDIVIDUAL DIGIT HINTS MODAL -->
+  <div id="hint-modal" class="custom-modal">
+    <div class="joke-box" style="border-color:var(--cyan); text-align:left;">
+      <h3 style="color:var(--cyan); margin-top:0; text-align:center;">🏴‍☠️ DIGIT BY DIGIT HINTS, AHOY!</h3>
+      <ul style="color:#fff; font-size:0.9rem; line-height:1.6; padding-left:20px;">
+        <li><b>1st Digit:</b> One captain hat! <span style="color:var(--warning);">(Hint: 1)</span></li>
+        <li><b>2nd Digit:</b> A pirate's favorite number... NINE! <span style="color:var(--warning);">(Hint: 9)</span></li>
+        <li><b>3rd Digit:</b> Number of tentacles on an octopus! <span style="color:var(--warning);">(Hint: 8)</span></li>
+        <li><b>4th Digit:</b> Legs on a sushi table! <span style="color:var(--warning);">(Hint: 4)</span></li>
+      </ul>
+      <p style="color:var(--danger); font-size:0.75rem; text-align:center;">⚠️ Keep moving mouse or PIN auto-clears in 2 seconds, matey!</p>
+      <button id="close-hint-btn" class="v-btn" style="position:static; width:100%;">I HAVE THE DIGITS, AHOY!</button>
+    </div>
+  </div>
+
+  <!-- WIN OVERLAY -->
+  <div id="win-overlay">
+    <h1 style="color:var(--wasabi); font-size:3rem;">🦆 DUCK ARRIVED AT THE END! ARRR!</h1>
+    <h2 style="color:var(--cyan);">YOU SURVIVED THE ULTIMATE PIRATE NIGHTMARE! 🎉</h2>
+    <p style="font-size:1.1rem; color:#fff; max-width:620px; margin-top:15px;">
+      Shiver me timbers! You caught the duck and survived the ultimate cursed video player! Arr!
+    </p>
+    <button onclick="location.reload()" class="v-btn" style="position:static; margin-top:20px;">RESTART CHALLENGE, AHOY!</button>
+  </div>
+
+  <!-- STAGE 1: CURSED NAME INPUT & TAB FOCUS TRAP -->
+  <div id="stage-1" class="stage active">
+    <h1>PIRATE IDENTITY VERIFICATION, AHOY!</h1>
+    <p>Type thy legal pirate name or face the kraken! Arr!</p>
+    <div class="input-box">
+      <input type="text" id="cursed-name-input" placeholder="Type pirate name here, matey..." autocomplete="off">
+    </div>
+    <p id="name-warning" style="color: var(--danger); height: 18px;"></p>
+
+    <div class="btn-container" id="stage1-btn-area">
+      <button id="btn-enter" class="cursed-btn" style="left: 20%;" tabindex="1">ROLL SUSHI, AHOY!</button>
+      <button id="btn-clear" class="cursed-btn" style="left: 60%; background: #333; color:#fff;" tabindex="2">DUMP WASABI, ARRR!</button>
+    </div>
+  </div>
+
+  <!-- STAGE 3: MAZE STAGE (RESTORED MAZE) -->
+  <div id="stage-3" class="stage">
+    <h1>DECRYPT TREASURE MAZE, AHOY!</h1>
+    <p>Steer thy ship to the green loot (Helm Controls Inverted, Matey!). ARRR!</p>
+    <canvas id="maze-canvas" width="400" height="220"></canvas>
+  </div>
+
+  <!-- STAGE 4: ULTIMATE CHAOS PIRATE VIDEO ENGINE (WITH VIDEO POPUPS & MAZE LINK) -->
+  <div id="stage-4" class="stage">
+    <h2>💀 THE WORST PIRATE PLAYER - UNLIMITED CHAOS ARRR! 💀</h2>
+    
+    <!-- VAULT LOCKED SCREEN -->
+    <div id="vault-screen">
+      <p style="color:var(--warning); margin:5px 0;">ENTER 4-DIGIT PIRATE PIN CODE (MOVE MOUSE OR WIPE!):</p>
+      <div id="pin-display" class="pin-display">____</div>
+      <p id="vault-status" style="color:var(--danger); font-size:0.75rem; height:15px; margin:2px 0;"></p>
+
+      <div class="phone-keypad" id="phone-keypad">
+        <div class="key-btn" data-key="1">1</div>
+        <div class="key-btn" data-key="2">2</div>
+        <div class="key-btn" data-key="3">3</div>
+        <div class="key-btn" data-key="4">4</div>
+        <div class="key-btn" data-key="5">5</div>
+        <div class="key-btn" data-key="6">6</div>
+        <div class="key-btn" data-key="7">7</div>
+        <div class="key-btn" data-key="8">8</div>
+        <div class="key-btn" data-key="9">9</div>
+        <div class="key-btn" data-key="CLR" style="background:var(--accent); font-size:0.9rem;">CLR</div>
+        <div class="key-btn" data-key="0">0</div>
+        <div class="key-btn" data-key="OK" style="background:var(--wasabi); color:#000; font-size:0.9rem;">OK</div>
+      </div>
+
+      <button id="open-hint-btn" class="v-btn" style="position:static; background:transparent; border:1px solid var(--cyan); color:var(--cyan); margin-top:6px;">
+        DIGIT-BY-DIGIT PIRATE HINTS 🏴‍☠️
+      </button>
+    </div>
+
+    <!-- UNLOCKED VIBRANT REAL VIDEO STREAM VIEW -->
+    <div id="unlocked-player-view">
+      <!-- DUCK PROGRESS BAR WITH MOVING DUCK -->
+      <div class="gauge-container">
+        <div id="gauge-bar"></div>
+        <div id="duck-progress-icon">🦆</div>
+      </div>
+
+      <div class="player-outer-box" id="player-box-container">
+        <!-- SCALE SHOCK MICROSCOPIC ELEMENT: SPEED BUTTON (TINY AS AN ANT) -->
+        <button id="v-speed" class="micro-speed-btn" title="MICROSCOPIC SPEED BUTTON"></button>
+
+        <!-- REAL HTML5 VIDEO PLAYER SCREEN -->
+        <div id="video-viewport">
+          <video id="real-video-stream" loop playsinline autoplay muted>
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+          </video>
+          <div style="position:absolute; top:8px; left:8px; color:red; font-size:12px; font-weight:bold; animation:shake 0.5s infinite;">⚠️ WORST PIRATE QUALITY EVER, ARRR!</div>
+        </div>
+
+        <!-- SCALE SHOCK GIANT ELEMENT: VOLUME BUTTON (TAKES > 1/3 OF PLAYER AREA) -->
+        <button id="v-vol" class="giant-vol-btn">
+          🔊 GIANT PIRATE VOLUME CONTROL (100%), ARRR!
+        </button>
+
+        <div class="controls-panel">
+          <!-- VIDEO PARTS MATCHING SECTION -->
+          <div style="display:flex; justify-content:center; gap:10px; margin-bottom:5px;">
+            <button id="part-1" class="v-btn" style="background:var(--cyan); color:#000;">[PART 1]</button>
+            <button id="part-2" class="v-btn" style="background:var(--pink); color:#fff;">[PART 2]</button>
+            <button id="part-3" class="v-btn" style="background:var(--wasabi); color:#000;">[PART 3]</button>
+          </div>
+
+          <div class="button-group">
+            <button id="v-play" class="v-btn" style="background:lime;">▶️ PLAY (SEEK END)</button>
+            <button id="v-pause" class="v-btn" style="background:red; color:white;">PAUSE (CARTWHEEL + REWIND)</button>
+            <label class="v-btn" style="background:var(--pink); color:#fff; cursor:pointer;">
+              📁 UPLOAD PIRATE VIDEO
+              <input type="file" id="file-uploader" accept="video/*" style="display:none;">
+            </label>
+          </div>
+        </div>
+
+        <div class="info-bar">
+          <span id="time-display">00:00 / 01:00</span>
+          <span id="status-display">Status: MATCH VIDEO PARTS TO UNLOCK FULL CONTROL, ARRR!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playScream() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc1.type = 'sawtooth'; osc2.type = 'square';
+      osc1.frequency.setValueAtTime(900, audioCtx.currentTime);
+      osc1.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 1.2);
+      osc2.frequency.setValueAtTime(950, audioCtx.currentTime);
+      osc2.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 1.2);
+
+      gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+
+      osc1.connect(gain); osc2.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc1.start(); osc2.start();
+      osc1.stop(audioCtx.currentTime + 1.2); osc2.stop(audioCtx.currentTime + 1.2);
+    }
+
+    function playBeep(freq = 440) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.frequency.value = freq; gain.gain.value = 0.05;
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+    }
+
+    // EYE TRACKER
+    const pupil = document.getElementById('pupil');
+    document.addEventListener('mousemove', (e) => {
+      const eyeBox = document.getElementById('eye-container').getBoundingClientRect();
+      const eyeX = eyeBox.left + eyeBox.width / 2;
+      const eyeY = eyeBox.top + eyeBox.height / 2;
+      const angle = Math.atan2(e.clientY - eyeY, e.clientX - eyeX);
+      const dist = Math.min(20, Math.hypot(e.clientX - eyeX, e.clientY - eyeY) / 10);
+      pupil.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`;
+    });
+
+    // STAGE 1 STRICT ORIGINAL LOGIC
+    const nameInput = document.getElementById('cursed-name-input');
+    const nameWarn = document.getElementById('name-warning');
+    const stage1Popup = document.getElementById('stage1-popup');
+    const stage1PopClose = document.getElementById('stage1-pop-close');
+    const stage1PopText = document.getElementById('stage1-pop-text');
+    const stage1PopTitle = document.getElementById('stage1-pop-title');
+    const popSubtext = document.getElementById('pop-subtext');
+    const btnEnter = document.getElementById('btn-enter');
+    const btnClear = document.getElementById('btn-clear');
+    const btnContainer = document.getElementById('stage1-btn-area');
+
+    let prevVal = "";
+    let stage1Jumpscared = false;
+    let dumpAttemptsCount = 0;
+    let popupHintStep = 0;
+    let popCloseEscapeCount = 0;
+
+    function registerDumpAttempt() {
+      dumpAttemptsCount++;
+      if (dumpAttemptsCount === 7 || dumpAttemptsCount === 10 || dumpAttemptsCount === 13) {
+        popupHintStep++;
+        triggerStage1Popup();
+      }
+    }
+
+    function triggerStage1Popup() {
+      playBeep(880);
+      popCloseEscapeCount = 0;
+      popSubtext.style.display = 'none';
+      stage1PopClose.style.top = '12px'; stage1PopClose.style.right = '12px';
+      stage1PopTitle.innerText = `🏴‍☠️ CURSED HINT #${popupHintStep} AHOY!`;
+
+      if (popupHintStep === 1) {
+        stage1PopText.innerText = "PLEASE... THINK CAREFULLY & TURN YOUR MIND ON, MATEY! ARRR! 🧠";
+      } else if (popupHintStep === 2) {
+        stage1PopText.innerText = "YOU NEED TO HIGHLIGHT THE ROLL BUTTON USING YOUR KEYBOARD, MATEY! ⌨️";
+      } else {
+        stage1PopText.innerText = "PRESS TAB KEY TO HIGHLIGHT 'ROLL SUSHI', THEN PRESS ENTER KEY TO ADVANCE, ARRR! 🏴‍☠️";
+      }
+      stage1Popup.style.display = 'flex';
+    }
+
+    stage1PopClose.addEventListener('mouseenter', () => {
+      if (popCloseEscapeCount < 6) {
+        popCloseEscapeCount++;
+        stage1PopClose.style.top = `${Math.random() * 140 - 50}px`;
+        stage1PopClose.style.right = `${Math.random() * 200 - 50}px`;
+        playBeep(600);
+      } else {
+        popSubtext.style.display = 'block';
+      }
+    });
+
+    stage1PopClose.addEventListener('click', (e) => {
+      if (popCloseEscapeCount >= 6 && !e.shiftKey) {
+        playBeep(200);
+        alert("HOLD SHIFT KEY WHILE CLICKING X TO CLOSE, MATEY! ARRR!");
+      } else if (popCloseEscapeCount >= 6 && e.shiftKey) {
+        stage1Popup.style.display = 'none';
+        stage1PopClose.style.top = '12px'; stage1PopClose.style.right = '12px';
+      }
+    });
+
+    btnContainer.addEventListener('mousemove', (e) => {
+      const enterRect = btnEnter.getBoundingClientRect();
+      const dist = Math.hypot(e.clientX - (enterRect.left + enterRect.width/2), e.clientY - (enterRect.top + enterRect.height/2));
+      if (dist < 60) {
+        btnEnter.style.left = `${Math.random() * 60 + 10}%`;
+        playBeep(500);
+        registerDumpAttempt();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('stage-1').classList.contains('active')) {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          btnEnter.focus(); btnEnter.classList.add('tab-focused');
+          playBeep(600);
+        } else if (e.key === 'Enter') {
+          if (document.activeElement === btnEnter || btnEnter.classList.contains('tab-focused')) {
+            playBeep(1200); switchStage(1, 3); initMaze(); // ADVANCE TO MAZE!
+          } else {
+            registerDumpAttempt();
+          }
+        }
+      }
+    });
+
+    nameInput.addEventListener('input', () => {
+      playBeep(300);
+      let val = nameInput.value;
+      if (val.length >= 4 && !stage1Jumpscared) {
+        stage1Jumpscared = true;
+        triggerJumpscare("KRAKEN ATTACK! TYPING VIOLATION, ARRR!");
+      }
+      if (val.length < prevVal.length) {
+        nameInput.value = val + val + val;
+        nameWarn.innerText = "BACKSPACE TRIPLED THY PIRATE NAME! ARRR!";
+      } else {
+        nameInput.value = val.split('').reverse().join('');
+        nameWarn.innerText = "CHARACTERS REVERSED BY CAPTAIN'S ORDERS! ARRR!";
+      }
+      prevVal = nameInput.value;
+    });
+
+    btnClear.addEventListener('click', () => { registerDumpAttempt(); nameInput.value = ""; prevVal = ""; });
+    btnEnter.addEventListener('click', () => { registerDumpAttempt(); });
+
+    function triggerJumpscare(msg = "WALK THE PLANK, MATEY!") {
+      playScream();
+      const jumpscareOverlay = document.getElementById('jumpscare-overlay');
+      document.getElementById('jumpscare-text').innerText = msg;
+      document.body.classList.add('glitch-shake');
+      jumpscareOverlay.style.opacity = '1';
+      setTimeout(() => {
+        jumpscareOverlay.style.opacity = '0';
+        document.body.classList.remove('glitch-shake');
+      }, 1200);
+    }
+
+    function switchStage(from, to) {
+      document.getElementById(`stage-${from}`).classList.remove('active');
+      document.getElementById(`stage-${to}`).classList.add('active');
+    }
+
+    // STAGE 3 MAZE (RESTORED)
+    function initMaze() {
+      const canvas = document.getElementById('maze-canvas');
+      const ctx = canvas.getContext('2d');
+      let px = 30, py = 30; let jumpscared = false;
+
+      function draw() {
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#39ff14'; ctx.fillRect(340, 160, 40, 40);
+        ctx.fillStyle = '#ff0055'; ctx.fillRect(120, 0, 15, 130); ctx.fillRect(240, 70, 15, 140);
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2); ctx.fill();
+
+        if ((px > 113 && px < 137 && py < 135) || (px > 243 && px < 267 && py > 75)) {
+          playBeep(150); px = 30; py = 30;
+        }
+
+        if (px > 280 && !jumpscared) {
+          jumpscared = true; triggerJumpscare("MAZE BREACH DETECTED! ARRR!");
+          setTimeout(() => { switchStage(3, 4); initVaultStage(); }, 1200);
+        }
+      }
+
+      canvas.addEventListener('mousemove', (e) => {
+        px -= (e.movementX * 0.7); py -= (e.movementY * 0.7);
+        px = Math.max(10, Math.min(canvas.width - 10, px));
+        py = Math.max(10, Math.min(canvas.height - 10, py));
+        draw();
+      });
+      draw();
+    }
+
+    // STAGE 4 VAULT
+    function initVaultStage() {
+      const pinDisplay = document.getElementById('pin-display');
+      const keypad = document.getElementById('phone-keypad');
+      const vaultScreen = document.getElementById('vault-screen');
+      const unlockedView = document.getElementById('unlocked-player-view');
+      const openHintBtn = document.getElementById('open-hint-btn');
+      const closeHintBtn = document.getElementById('close-hint-btn');
+      const hintModal = document.getElementById('hint-modal');
+      const vaultStatus = document.getElementById('vault-status');
+
+      let enteredPin = "";
+      let mouseInactivityTimer = null;
+
+      openHintBtn.addEventListener('click', () => { hintModal.style.display = 'flex'; });
+      closeHintBtn.addEventListener('click', () => { hintModal.style.display = 'none'; });
+
+      document.addEventListener('mousemove', () => {
+        if (vaultScreen.style.display === 'none') return;
+        clearTimeout(mouseInactivityTimer);
+        mouseInactivityTimer = setTimeout(() => {
+          if (enteredPin.length > 0) {
+            enteredPin = ""; pinDisplay.innerText = "____";
+            vaultStatus.innerText = "WIPED: INACTIVITY DETECTED, ARRR!"; playBeep(200);
+          }
+        }, 2000);
+      });
+
+      keypad.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('key-btn')) return;
+        const key = e.target.dataset.key;
+        playBeep(500); vaultStatus.innerText = "";
+
+        if (key === 'CLR') enteredPin = "";
+        else if (key === 'OK') {
+          if (enteredPin === "1984") {
+            playBeep(1200); vaultScreen.style.display = 'none';
+            unlockedView.style.display = 'flex';
+            startVibrantRealVideoEngine();
+          } else {
+            triggerJumpscare("WRONG PIRATE PIN CODE! TRY AGAIN, MATEY!"); enteredPin = "";
+          }
+        } else {
+          if (enteredPin.length < 4) enteredPin += key;
+        }
+        pinDisplay.innerText = enteredPin.padEnd(4, '_');
+        shuffleKeypad();
+      });
+
+      function shuffleKeypad() {
+        const btns = Array.from(keypad.children);
+        for (let i = btns.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          keypad.appendChild(btns[j]);
+        }
+      }
+    }
+
+    // STAGE 4: REAL VIDEO ENGINE WITH VIDEO PLAYER POPUPS & CARTWHEEL
+    function startVibrantRealVideoEngine() {
+      const realVideo = document.getElementById('real-video-stream');
+      const fileUploader = document.getElementById('file-uploader');
+      const playBtn = document.getElementById('v-play');
+      const pauseBtn = document.getElementById('v-pause');
+      const volBtn = document.getElementById('v-vol');
+      const speedBtn = document.getElementById('v-speed');
+      const gaugeBar = document.getElementById('gauge-bar');
+      const duckProgressIcon = document.getElementById('duck-progress-icon');
+      const statusDisplay = document.getElementById('status-display');
+      const timeDisplay = document.getElementById('time-display');
+      const viewport = document.getElementById('video-viewport');
+      const playerBox = document.getElementById('player-box-container');
+
+      let isPlaying = true;
+      let progress = 0;
+      let volumeVal = 100;
+      let partSequence = [];
+
+      // SPAWN POPUPS DIRECTLY OVER THE VIDEO PLAYER
+      setInterval(() => {
+        if (Math.random() > 0.4) {
+          spawnVideoPlayerPopup();
+        }
+      }, 4500);
+
+      function spawnVideoPlayerPopup() {
+        const pop = document.createElement('div');
+        pop.className = 'video-player-popup';
+        pop.style.top = `${Math.random() * 200 + 40}px`;
+        pop.style.left = `${Math.random() * 300 + 30}px`;
+        pop.innerHTML = `
+          <h4 style="color:#000; margin:0; font-size:12px;">⚠️ PIRATE ALERT #${Math.floor(Math.random()*999)}</h4>
+          <p style="color:#fff; font-size:10px; margin:5px 0;">CLOSE THIS POPUP TO WATCH VIDEO!</p>
+          <button class="v-btn pop-x-btn" style="padding:2px 8px; font-size:10px;">X (CLOSE)</button>
+        `;
+        playerBox.appendChild(pop);
+
+        const xBtn = pop.querySelector('.pop-x-btn');
+        let escapes = 0;
+        xBtn.addEventListener('mouseenter', () => {
+          if (escapes < 4) {
+            escapes++;
+            pop.style.top = `${Math.random() * 200 + 40}px`;
+            pop.style.left = `${Math.random() * 300 + 30}px`;
+            playBeep(500);
+          }
+        });
+
+        xBtn.addEventListener('click', () => {
+          pop.remove();
+          playBeep(800);
+        });
+      }
+
+      // PARTS MATCHING LOGIC
+      document.getElementById('part-1').addEventListener('click', () => registerPart(1));
+      document.getElementById('part-2').addEventListener('click', () => registerPart(2));
+      document.getElementById('part-3').addEventListener('click', () => registerPart(3));
+
+      function registerPart(num) {
+        partSequence.push(num);
+        playBeep(700);
+        statusDisplay.innerText = `Status: MATCHED PART ${num}! KEEP MATCHING, ARRR!`;
+        if (partSequence.length >= 3) {
+          statusDisplay.innerText = "Status: ALL PARTS MATCHED! PIRATE UNLOCKED! 🏴‍☠️";
+          partSequence = [];
+        }
+      }
+
+      // MICROSCOPIC SPEED BUTTON CLICK
+      speedBtn.addEventListener('click', () => {
+        playBeep(900);
+        realVideo.playbackRate = realVideo.playbackRate === 1 ? 5.0 : 1;
+        statusDisplay.innerText = "Status: MICROSCOPIC SPEED BUTTON CLICKED! 5.0X SPEED! ⚡";
+      });
+
+      // GIANT VOLUME BUTTON CLICK
+      volBtn.addEventListener('click', () => {
+        playScream();
+        volumeVal = volumeVal === 100 ? 10 : 100;
+        volBtn.innerText = `🔊 GIANT PIRATE VOLUME CONTROL (${volumeVal}%), ARRR!`;
+        realVideo.volume = volumeVal / 100;
+        statusDisplay.innerText = "Status: GIANT VOLUME BOOST TRIGGERED SCREAM! ⚡";
+      });
+
+      // REAL FILE UPLOAD
+      fileUploader.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          realVideo.src = URL.createObjectURL(file);
+          realVideo.play();
+          statusDisplay.innerText = "Status: REAL PIRATE UPLOAD LOADED, ARRR! 📁";
+        }
+      });
+
+      // INVERTED PLAY (SEEK END)
+      playBtn.addEventListener('click', () => {
+        progress = 100;
+        gaugeBar.style.width = "100%";
+        duckProgressIcon.style.left = "100%";
+        realVideo.currentTime = realVideo.duration || 100;
+        statusDisplay.innerText = "Status: PLAY CLICKED → JUMPED TO END 100%! ARRR! ⏩";
+        playBeep(200);
+      });
+
+      // INVERTED PAUSE (REWIND + CARTWHEEL FOR 5s)
+      pauseBtn.addEventListener('click', () => {
+        progress = 0;
+        gaugeBar.style.width = "0%";
+        duckProgressIcon.style.left = "0%";
+        realVideo.currentTime = 0;
+        statusDisplay.innerText = "Status: PAUSE CLICKED → REWOUND TO 0% & CARTWHEELING! 🌀";
+        
+        viewport.classList.add('do-cartwheel');
+        setTimeout(() => { viewport.classList.remove('do-cartwheel'); }, 5000);
+      });
+
+      // CHAOTIC AUTO-FADE VOLUME
+      setInterval(() => {
+        const randomVol = Math.floor(Math.random() * 100);
+        realVideo.volume = randomVol / 100;
+      }, 1500);
+
+      // PROGRESS & DUCK PROGRESS BAR
+      setInterval(() => {
+        if (isPlaying && progress < 100) {
+          progress += 1;
+          gaugeBar.style.width = progress + "%";
+          duckProgressIcon.style.left = progress + "%";
+          
+          let sec = Math.floor((progress / 100) * 60);
+          timeDisplay.innerText = `00:${sec.toString().padStart(2, '0')} / 01:00`;
+
+          if (progress >= 100) {
+            document.getElementById('win-overlay').style.display = 'flex';
+            playBeep(1200);
+          }
+        }
+      }, 250);
+
+      // CLICK ON DUCK TO WIN
+      duckProgressIcon.addEventListener('click', () => {
+        document.getElementById('win-overlay').style.display = 'flex';
+        playBeep(1200);
+      });
+    }
+  </script>
+</body>
+</html>
